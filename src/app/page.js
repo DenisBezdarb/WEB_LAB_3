@@ -1,69 +1,136 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client';
+
+import React from 'react';
+import Link from 'next/link';
+import styles from '../styles/Home.module.css';
+
+function SimpleSlider({ children }) {
+  const [index, setIndex] = React.useState(0);
+  const slides = React.Children.toArray(children);
+  const count = slides.length;
+
+  function prev() {
+    setIndex((i) => (i - 1 + count) % count);
+  }
+  function next() {
+    setIndex((i) => (i + 1) % count);
+  }
+
+  if (count === 0) return <p>Нет данных</p>;
+
+  return (
+      <div className={styles.slider}>
+        <button className={styles.sliderArrowLeft} onClick={prev} aria-label="Назад">
+          ‹
+        </button>
+        {slides[index]}
+        <button className={styles.sliderArrowRight} onClick={next} aria-label="Вперёд">
+          ›
+        </button>
+      </div>
+  );
+}
+
+const headerStyle = {
+  color: 'white',
+  position: 'absolute',
+  zIndex: 4,
+  top: '30%',
+  left: '40%',
+};
+
+const contentStyle = {
+  color: 'white',
+  textAlign: 'center',
+  top: '50%',
+  left: '25%',
+  position: 'absolute',
+  zIndex: 4,
+};
+
+const bgImg = {
+  position: 'absolute',
+  zIndex: 3,
+  left: 0,
+  top: 0,
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+};
+
+function sendEmail(email) {
+  const body = `Здравствуйте, я нашел вашего питомца.%0A-----------%0AС уважением, ${localStorage.getItem(
+      'user'
+  )}`;
+  window.open(`mailto:${email}?subject=Потерянный зверь&body=${body}`);
+}
+
+function Animal({ data }) {
+  if (!data) return <p>Loading</p>;
+  const { header, content, img } = data;
+  return (
+      <div className={styles.slide}>
+        <h1 style={headerStyle}>{header}</h1>
+        <br />
+        <h2 style={contentStyle}>{content}</h2>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img style={bgImg} alt={header} src={`/${img}`} />
+      </div>
+  );
+}
 
 export default function Home() {
+  const [animals, setAnimals] = React.useState([]);
+
+  React.useEffect(() => {
+    fetch('/animals.json')
+        .then((res) => res.json())
+        .then((data) => setAnimals(data));
+  }, []);
+
+  React.useEffect(() => {
+    let user = localStorage.getItem('user');
+    if (user === null) {
+      while (user === null) {
+        user = prompt('Введите ваше имя пользователя');
+        if (!user) {
+          alert('Обязательно!');
+        } else {
+          localStorage.setItem('user', user);
+        }
+      }
+    }
+  }, []);
+
+  function logout() {
+    localStorage.clear();
+    location.reload();
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.js</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      <div className={styles.container}>
+        <main className={styles.main}>
+          <div className={styles.topBar}>
+            <button onClick={logout}>logout</button>
+            <Link href="/communities">Мои сообщества →</Link>
+          </div>
+
+          <h1>Пропали питомцы. Помогите найти! Срочно!</h1>
+
+          <SimpleSlider>
+            {animals.map((data, i) => (
+                <div
+                    key={i}
+                    className={styles.slideWrapper}
+                    onClick={() => sendEmail(data?.email)}
+                >
+                  <Animal data={data} />
+                </div>
+            ))}
+          </SimpleSlider>
+        </main>
+
+        <footer className={styles.footer}>New Petto, (c) 2026</footer>
+      </div>
   );
 }

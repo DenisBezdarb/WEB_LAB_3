@@ -1,0 +1,26 @@
+[
+    {
+    "content":"Последний раз видели на Бакунина 115",
+    "header":"Кот Кузя",
+    "email":"kuzya@ya.ru",
+    "img":"cat.png"
+    },
+    {
+    "content":"Последний раз видели около шаурмячной",
+    "header":"Собака Чара",
+    "email":"chara@ya.ru",
+    "img":"chara.jpg"
+    },
+    {
+    "content":"Последний раз видели в мультике",
+    "header":"ПОГАНЕЦ",
+    "email":"poganec@ya.ru",
+    "img":"poganec.jpg"
+    },
+    {
+    "content":"ЧАПА ЧАПА",
+    "header":"ЧИПИ ЧИПИ",
+    "email":"chapa chapa@ya.ru",
+    "img":"chipi chipi.jpg"
+    }
+]
